@@ -52,8 +52,10 @@ const LiveGuide: React.FC = () => {
 
   const startSession = async () => {
     setIsConnecting(true);
-    // Initialize exactly as required by the documentation.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    // Safely get API key from polyfilled or environment process
+    const apiKey = (window as any).process?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : '');
+    const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
     try {
       if (!audioContextInRef.current) {

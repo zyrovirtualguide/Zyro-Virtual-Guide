@@ -1,8 +1,14 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize the GenAI client using the exact required signature.
-const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize the GenAI client with safety checks for the browser environment
+const getAI = () => {
+  const apiKey = (window as any).process?.env?.API_KEY || process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("ZYRO WARNING: API_KEY is missing. AI features will be unavailable.");
+  }
+  return new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
+};
 
 const GLOBAL_CONTEXT = `
 You are a specialist in global tourism and cultural intelligence for the Zyro World Guide. 
