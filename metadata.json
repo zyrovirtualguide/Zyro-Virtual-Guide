@@ -1,0 +1,8 @@
+{
+  "name": "Zyro Virtual Guide",
+  "description": "An AI-powered local tourism guide featuring real-time voice assistance, smart itinerary generation, and location-aware recommendations.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}
