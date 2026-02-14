@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob } from '@google/genai';
 
@@ -52,7 +51,10 @@ const LiveGuide: React.FC = () => {
 
   const startSession = async () => {
     setIsConnecting(true);
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    
+    // Safely retrieve the API key
+    const apiKey = (window as any).process?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : '');
+    const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
     try {
       if (!audioContextInRef.current) {
