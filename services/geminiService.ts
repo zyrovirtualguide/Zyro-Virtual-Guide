@@ -1,9 +1,26 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
+/**
+ * Robustly retrieves the API key from environment variables or global process objects.
+ */
+const getApiKey = (): string => {
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    return process.env.API_KEY;
+  }
+  // Fallback for browser-injected globals
+  const win = window as any;
+  if (win.process && win.process.env && win.process.env.API_KEY) {
+    return win.process.env.API_KEY;
+  }
+  return '';
+};
+
 const getAI = () => {
-  // Use a safer check for the API key to avoid reference errors during late injection
-  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : (window as any).process?.env?.API_KEY;
-  return new GoogleGenAI({ apiKey: apiKey || '' });
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    console.warn("ZYRO_INTELLIGENCE: No API Key detected. Some neural functions may be offline.");
+  }
+  return new GoogleGenAI({ apiKey });
 };
 
 const TACTICAL_DOSSIER_INSTRUCTION = `
@@ -29,7 +46,7 @@ const safeParse = (text: string | undefined, fallback: any = []) => {
     const cleanText = text.replace(/```json|```/g, '').trim();
     return JSON.parse(cleanText);
   } catch (e) {
-    console.error("Gemini JSON Parse Error:", e);
+    console.error("ZYRO_PARSE_ERROR:", e);
     return fallback;
   }
 };
@@ -76,7 +93,7 @@ export const getPlaceRecommendations = async (city: string) => {
 
     return safeParse(response.text, []);
   } catch (err) {
-    console.error("Dossier Service Error:", err);
+    console.error("ZYRO_DOSSIER_ERROR:", err);
     return [];
   }
 };
@@ -106,6 +123,7 @@ export const getMapMarkers = async (city: string) => {
     });
     return safeParse(response.text, []);
   } catch (err) {
+    console.error("ZYRO_MARKER_ERROR:", err);
     return [];
   }
 };
@@ -113,64 +131,74 @@ export const getMapMarkers = async (city: string) => {
 export const generateItinerary = async (city: string, days: number, interests: string[]) => {
   const ai = getAI();
   const prompt = `Generate a ${days}-day itinerary for ${city} focused on ${interests.join(', ')}. Return JSON.`;
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            day: { type: Type.INTEGER },
-            activities: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  time: { type: Type.STRING },
-                  activity: { type: Type.STRING },
-                  location: { type: Type.STRING },
-                  description: { type: Type.STRING },
-                  lat: { type: Type.NUMBER },
-                  lng: { type: Type.NUMBER }
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              day: { type: Type.INTEGER },
+              activities: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    time: { type: Type.STRING },
+                    activity: { type: Type.STRING },
+                    location: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    lat: { type: Type.NUMBER },
+                    lng: { type: Type.NUMBER }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-  });
-  return safeParse(response.text, []);
+    });
+    return safeParse(response.text, []);
+  } catch (err) {
+    console.error("ZYRO_ITINERARY_ERROR:", err);
+    return [];
+  }
 };
 
 export const getTravelSuggestions = async (persona: string) => {
   const ai = getAI();
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: `Suggest 4 destinations for "${persona}". For each, include recommended stay duration and 1 hospitality stay suggestion. Return JSON.`,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            location: { type: Type.STRING },
-            region: { type: Type.STRING },
-            why: { type: Type.STRING },
-            highlight: { type: Type.STRING },
-            bestTime: { type: Type.STRING },
-            logistics: { type: Type.STRING },
-            recommendedDays: { type: Type.STRING },
-            baseOfOperations: { type: Type.STRING, description: "One recommended hotel name" }
-          },
-          required: ["location", "region", "why", "highlight", "bestTime", "logistics", "recommendedDays", "baseOfOperations"]
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Suggest 4 destinations for "${persona}". For each, include recommended stay duration and 1 hospitality stay suggestion. Return JSON.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              location: { type: Type.STRING },
+              region: { type: Type.STRING },
+              why: { type: Type.STRING },
+              highlight: { type: Type.STRING },
+              bestTime: { type: Type.STRING },
+              logistics: { type: Type.STRING },
+              recommendedDays: { type: Type.STRING },
+              baseOfOperations: { type: Type.STRING, description: "One recommended hotel name" }
+            },
+            required: ["location", "region", "why", "highlight", "bestTime", "logistics", "recommendedDays", "baseOfOperations"]
+          }
         }
       }
-    }
-  });
-  return safeParse(response.text, []);
+    });
+    return safeParse(response.text, []);
+  } catch (err) {
+    console.error("ZYRO_SUGGESTION_ERROR:", err);
+    return [];
+  }
 };
