@@ -1,8 +1,9 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 const getAI = () => {
-  return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // Use a safer check for the API key to avoid reference errors during late injection
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : (window as any).process?.env?.API_KEY;
+  return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
 const TACTICAL_DOSSIER_INSTRUCTION = `

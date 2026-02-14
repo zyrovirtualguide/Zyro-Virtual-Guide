@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { generateItinerary } from '../services/geminiService';
-import { ItineraryDay } from '../types';
-import MapComponent from '../components/MapComponent';
+import { generateItinerary } from '../services/geminiService.ts';
+import { ItineraryDay } from '../types.ts';
+import MapComponent from '../components/MapComponent.tsx';
 
 const Itinerary: React.FC = () => {
   const [city, setCity] = useState('');

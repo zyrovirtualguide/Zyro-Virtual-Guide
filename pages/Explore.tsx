@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getPlaceRecommendations, getMapMarkers } from '../services/geminiService';
-import MapComponent from '../components/MapComponent';
-import { Place } from '../types';
+import { getPlaceRecommendations, getMapMarkers } from '../services/geminiService.ts';
+import MapComponent from '../components/MapComponent.tsx';
+import { Place } from '../types.ts';
 
 interface DossierEntry {
   placeName: string;

@@ -1,14 +1,13 @@
-
 import React from 'react';
 import { HashRouter as Router, Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Explore from './pages/Explore';
-import Suggestions from './pages/Suggestions';
-import Itinerary from './pages/Itinerary';
-import LiveGuide from './components/LiveGuide';
-import Login from './pages/Login';
+import { AuthProvider, useAuth } from './context/AuthContext.tsx';
+import Navbar from './components/Navbar.tsx';
+import Hero from './components/Hero.tsx';
+import Explore from './pages/Explore.tsx';
+import Suggestions from './pages/Suggestions.tsx';
+import Itinerary from './pages/Itinerary.tsx';
+import LiveGuide from './components/LiveGuide.tsx';
+import Login from './pages/Login.tsx';
 
 const Footer: React.FC = () => (
   <footer className="border-t border-white/5 pb-24 pt-40 px-12 bg-black">

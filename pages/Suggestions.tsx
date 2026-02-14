@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { getTravelSuggestions } from '../services/geminiService';
+import { getTravelSuggestions } from '../services/geminiService.ts';
 
 interface ExtendedSuggestion {
   location: string;
