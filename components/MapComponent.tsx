@@ -48,9 +48,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
         zoomControl: false,
         fadeAnimation: true,
         markerZoomAnimation: true,
-        doubleClickZoom: true, // Explicitly enabled
-        keyboard: true,         // Enable keyboard navigation
-        keyboardPanDelta: 80,   // Sensitivity of arrow key panning
+        doubleClickZoom: true,
+        keyboard: true,
+        keyboardPanDelta: 80,
         scrollWheelZoom: 'center'
       }).setView([center.lat, center.lng], zoom);
       
@@ -131,6 +131,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
         popupAnchor: [0, -45]
       });
 
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(marker.name)}`;
+
       const popupContent = document.createElement('div');
       popupContent.className = 'p-4 min-w-[180px]';
       popupContent.innerHTML = `
@@ -140,9 +142,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
           <button class="teleport-btn py-2.5 bg-indigo-600 text-white text-[9px] font-black rounded-xl uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2">
             <i class="fas fa-bolt"></i><span>Teleport</span>
           </button>
-          <button class="py-2.5 bg-slate-100 text-slate-600 text-[9px] font-black rounded-xl uppercase tracking-widest hover:bg-slate-200 transition-colors flex items-center justify-center space-x-2">
-            <i class="fas fa-plus"></i><span>Save</span>
-          </button>
+          <a href="${mapsUrl}" target="_blank" class="py-2.5 bg-blue-100 text-blue-600 text-[9px] font-black rounded-xl uppercase tracking-widest hover:bg-blue-200 transition-colors flex items-center justify-center space-x-2 no-underline">
+            <i class="fas fa-map"></i><span>Maps</span>
+          </a>
         </div>
       `;
 

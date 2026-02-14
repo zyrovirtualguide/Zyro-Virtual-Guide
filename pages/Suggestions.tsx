@@ -1,12 +1,22 @@
 
 import React, { useState } from 'react';
 import { getTravelSuggestions } from '../services/geminiService';
-import { TravelSuggestion } from '../types';
+
+interface ExtendedSuggestion {
+  location: string;
+  region: string;
+  why: string;
+  highlight: string;
+  bestTime: string;
+  logistics: string;
+  recommendedDays: string;
+  baseOfOperations: string;
+}
 
 const Suggestions: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<TravelSuggestion[]>([]);
+  const [results, setResults] = useState<ExtendedSuggestion[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
 
   const personas = [
@@ -34,6 +44,10 @@ const Suggestions: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getGoogleMapsUrl = (targetName: string) => {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetName)}`;
   };
 
   return (
@@ -79,7 +93,7 @@ const Suggestions: React.FC = () => {
       ) : results.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           {results.map((item, idx) => (
-            <div key={idx} className="glass-panel p-12 rounded-[56px] relative overflow-hidden group hover:border-blue-500/20 transition-all">
+            <div key={idx} className="glass-panel p-12 rounded-[56px] relative overflow-hidden group hover:border-blue-500/20 transition-all flex flex-col">
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[80px] -z-10 group-hover:bg-blue-500/10 transition-colors"></div>
               
               <div className="flex justify-between items-start mb-10">
@@ -87,12 +101,18 @@ const Suggestions: React.FC = () => {
                   <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-2 block">{item.region}</span>
                   <h2 className="text-4xl font-black text-white tracking-tighter">{item.location}</h2>
                 </div>
-                <div className="bg-white/5 px-5 py-2 rounded-full border border-white/5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Best: {item.bestTime}
+                <div className="flex flex-col items-end gap-2">
+                  <div className="bg-white/5 px-4 py-1.5 rounded-full border border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    Peak: {item.bestTime}
+                  </div>
+                  <div className="bg-blue-500/10 px-4 py-1.5 rounded-full border border-blue-500/20 text-[9px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                    <i className="fas fa-hourglass-half text-[8px]"></i>
+                    {item.recommendedDays}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-8 flex-grow">
                 <div className="p-8 bg-black/40 rounded-[32px] border border-white/5">
                   <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Contextual Relevance</h4>
                   <p className="text-slate-300 font-medium text-lg leading-relaxed">{item.why}</p>
@@ -108,11 +128,36 @@ const Suggestions: React.FC = () => {
                     <p className="text-white font-bold">{item.logistics}</p>
                   </div>
                 </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center">
+                    <i className="fas fa-hotel mr-3"></i> Base of Operations
+                  </h4>
+                  <a 
+                    href={getGoogleMapsUrl(`${item.baseOfOperations} ${item.location}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between bg-white/5 hover:bg-indigo-500/10 p-5 rounded-[28px] border border-white/5 hover:border-indigo-500/30 transition-all group/asset"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
+                        <i className="fas fa-bed text-indigo-500"></i>
+                      </div>
+                      <span className="text-slate-300 font-bold group-hover/asset:text-white transition-colors">{item.baseOfOperations}</span>
+                    </div>
+                    <i className="fas fa-location-arrow text-xs text-slate-700 group-hover/asset:text-indigo-400 transition-colors"></i>
+                  </a>
+                </div>
               </div>
 
-              <button className="mt-12 w-full py-5 rounded-3xl bg-white/5 hover:bg-white/10 text-white font-black text-sm tracking-widest uppercase border border-white/5 transition-all">
-                Plan This Discovery <i className="fas fa-arrow-right ml-3 text-xs opacity-40"></i>
-              </button>
+              <a 
+                href={getGoogleMapsUrl(item.location)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-12 w-full py-6 rounded-3xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm tracking-widest uppercase shadow-xl transition-all text-center flex items-center justify-center gap-4"
+              >
+                Plan Discovery <i className="fas fa-satellite text-xs"></i>
+              </a>
             </div>
           ))}
         </div>

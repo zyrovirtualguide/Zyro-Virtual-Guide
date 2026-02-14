@@ -52,10 +52,7 @@ const LiveGuide: React.FC = () => {
 
   const startSession = async () => {
     setIsConnecting(true);
-    
-    // Safely get API key from polyfilled or environment process
-    const apiKey = (window as any).process?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : '');
-    const ai = new GoogleGenAI({ apiKey: apiKey || '' });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
     try {
       if (!audioContextInRef.current) {
@@ -88,7 +85,7 @@ const LiveGuide: React.FC = () => {
                 mimeType: 'audio/pcm;rate=16000',
               };
               sessionPromise.then(session => {
-                if (session) session.sendRealtimeInput({ media: pcmBlob });
+                session.sendRealtimeInput({ media: pcmBlob });
               });
             };
             
